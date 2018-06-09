@@ -1,4 +1,6 @@
+
 <!DOCTYPE html>
+<title>Rocket Launches</title>
 <meta charset="utf-8">
 <style type="text/css">
 
@@ -13,6 +15,7 @@ svg {
 }
 
 </style>
+
 <body>
 <script src="//d3js.org/d3.v3.js"></script>
 <script>
@@ -26,7 +29,7 @@ var x,
     duration = 4500,
     delay = 4500;
 
-var color = d3.scale.ordinal().range(['#e9ff00', '#ff0043','#00f','#0f0','#e842f4']);
+var color = d3.scale.ordinal().range(['#FFD200','#FFA500','#FF5200','#FF0000','#7F0000']);
 
 var svg = d3.select("body").append("svg")
     .attr("width", w + m[1] + m[3])
@@ -63,7 +66,7 @@ d3.csv("dataset.csv", function(data) {
     s.maxAmount = d3.max(s.values, function(d) { return d.amount; });
     s.sumAmount = d3.sum(s.values, function(d) { return d.amount; });
   });
-
+  
   categories.sort(function(a, b) { return b.maxAmount - a.maxAmount; });
 
   var g = svg.selectAll("g")
@@ -75,6 +78,9 @@ d3.csv("dataset.csv", function(data) {
 });
 
 function lines() {
+  
+ var totalMax = d3.max(function(d) { return d.amount});
+
   x = d3.time.scale().range([0, w - 60]);
   y = d3.scale.linear().range([h , -h -20]);
 
@@ -82,6 +88,10 @@ function lines() {
     d3.min(categories, function(d) { return d.values[0].date; }),
     d3.max(categories, function(d) { return d.values[d.values.length - 1].date; })
   ]);
+  
+  y
+      .domain([0, d3.max(categories.map(function(d) { return d.maxAmount + m[2]; }))])
+      .range([h, 0]);
 
   var g = svg.selectAll(".category")
       .attr("transform", function(d, i) { return "translate(0," + h + ",0)"; });
@@ -139,7 +149,7 @@ function overlappingArea() {
       .attr("d", function(d) { return line(d.values); });
 
   y
-      .domain([0, d3.max(categories.map(function(d) { return d.maxAmount; }))])
+      .domain([0, d3.max(categories.map(function(d) { return d.maxAmount + m[2]; }))])
       .range([h, 0]);
 
   area
@@ -240,7 +250,7 @@ function stackedBar() {
   stack(categories);
 
   y
-      .domain([0, d3.max(categories[0].values.map(function(d) { return d.amount + d.amount0; }))])
+      .domain([0, d3.max(categories[0].values.map(function(d) { return d.amount + d.amount0 + m[2]; }))])
       .range([h, 0]);
 
   var t = g.transition()
@@ -274,7 +284,7 @@ function transposeBar() {
       .rangeRoundBands([0, w], .2);
 
   y
-      .domain([0, d3.max(categories.map(function(d) { return d3.sum(d.values.map(function(d) { return d.amount; })); }))]);
+      .domain([0, m[2] + d3.max(categories.map(function(d) { return d3.sum(d.values.map(function(d) { return d.amount; })); }))]);
 
   var stack = d3.layout.stack()
       .x(function(d, i) { return i; })
