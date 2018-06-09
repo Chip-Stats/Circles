@@ -26,7 +26,10 @@ var x,
     duration = 4500,
     delay = 4500;
 
-var color = d3.scale.category10();
+var length = 4,
+    color = d3.scale.linear().domain([1,length])
+      .interpolate(d3.interpolateHcl)
+      .range([d3.rgb("#007AFF"), d3.rgb('#FFF500')]);
 
 var svg = d3.select("body").append("svg")
     .attr("width", w + m[1] + m[3])
